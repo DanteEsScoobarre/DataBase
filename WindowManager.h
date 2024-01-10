@@ -15,7 +15,9 @@ private:
     std::ostringstream oss;
     sf::Text errorText;
     std::string currentOperation;
+    sf::Text welcomeText;
     std::string currentTableName;
+    sf::RectangleShape cursorRect;
 public:
     WindowManager();
     void handleEvents(Database& myDatabase);

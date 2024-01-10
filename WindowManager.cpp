@@ -6,6 +6,14 @@ WindowManager::WindowManager() : window(sf::VideoMode(1200, 400), "Database") {
     if (!font.loadFromFile("..\\Font\\Montserrat-Italic-VariableFont_wght.ttf")) {
         std::cerr << "Failed to load font." << std::endl;
     }
+    cursorRect.setSize(sf::Vector2f(0.8f, 20.f));
+    cursorRect.setPosition(11, 32);
+    cursorRect.setFillColor(sf::Color::White);
+
+    welcomeText.setFont(font);
+    welcomeText.setCharacterSize(20);
+    welcomeText.setPosition(10, 10);
+    welcomeText.setString("Witaj, co chcesz dzisiaj zrobic");
 
     inputText.setFont(font);
     inputText.setCharacterSize(20);
@@ -29,6 +37,8 @@ void WindowManager::handleEvents(Database& myDatabase) {
         }
 
         if (event.type == sf::Event::TextEntered) {
+
+
             if (event.text.unicode == 13) { // Enter key
                 std::string userInput = inputText.getString();
                 if (userInput == "exit") {
@@ -74,6 +84,10 @@ void WindowManager::handleEvents(Database& myDatabase) {
                 currentText += static_cast<char>(event.text.unicode);
                 inputText.setString(currentText);
 
+                // Aktualizuj pozycję kursora
+                float cursorPositionX = inputText.findCharacterPos(inputText.getString().getSize()).x;
+                cursorRect.setPosition(cursorPositionX, 32);
+
                 // Sprawdź, czy użytkownik wprowadza nazwę operacji (np. "create table")
                 if (currentText.find("create table") != std::string::npos) {
                     currentOperation = "create table";
@@ -90,12 +104,8 @@ void WindowManager::handleEvents(Database& myDatabase) {
 
 void WindowManager::renderWindow() {
     window.clear();
-    sf::Text welcomeText;
-    welcomeText.setFont(font);
-    welcomeText.setCharacterSize(20);
-    welcomeText.setPosition(10, 10);
-    welcomeText.setString("Witaj, co chcesz dzisiaj zrobic");
     window.draw(welcomeText);
+    window.draw(cursorRect);
     window.draw(inputText);
     window.draw(outputText);
     window.draw(errorText);
