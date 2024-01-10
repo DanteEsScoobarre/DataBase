@@ -1,4 +1,5 @@
 #include "Database.h"
+#include "WindowManager.h"
 #include "DBQLParser.h"
 
 
@@ -186,7 +187,7 @@ void Database::selectData(const std::string& tableName, const std::vector<std::s
 }
 
 
-void Database::saveToFile(const std::string &fileName) {
+/*void Database::saveToFile(const std::string &fileName) {
     std::ofstream outputFile(fileName);
     if (!outputFile) {
         std::cerr << "Failed to open file: " << fileName << std::endl;
@@ -215,7 +216,7 @@ void Database::saveToFile(const std::string &fileName) {
 
     outputFile.close();
 }
-
+*/
 /*void Database::loadDataFromFile(const std::string &fileName) {
     std::ifstream inputFile(fileName);
     if (!inputFile) {
@@ -339,5 +340,7 @@ void Database::addNewColumn(const std::string& tableName, const std::string& col
         row.second.push_back("");
     }
 }
+
+
 
 

@@ -71,7 +71,7 @@ public:
 
 
     // Zapis/Odczyt
-    void saveToFile(const std::string &fileName);
+    //void saveToFile(const std::string &fileName);
 
     // void loadDataFromFile(const std::string &fileName);
 

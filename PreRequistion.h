@@ -4,9 +4,12 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <ostream>
+#include <cstring>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
 #include <unordered_map>
+#include <SFML/Graphics.hpp>
 
 #endif //DATABASE_PREREQUISTION_H

@@ -26,6 +26,8 @@ add_executable(Database main.cpp
         DBQLParser.cpp
         DBQLParser.h
         PreRequistion.h
+        WindowManager.cpp
+        WindowManager.h
 
 
 )
