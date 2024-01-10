@@ -1,7 +1,3 @@
-//
-// Created by rozsh on 10/01/2024.
-//
-
 #ifndef DATABASE_DATABASE_H
 #define DATABASE_DATABASE_H
 #include "PreRequistion.h"
@@ -14,6 +10,8 @@ struct Column {
     std::string name;
     DataType type;
     bool isValidType(const std::string& value) const;
+    int index;
+
 
 
 };
@@ -22,7 +20,8 @@ struct Column {
 struct Table {
     std::string name;
     std::map<std::string, Column> columns;
-    std::map<std::string, std::vector<std::string>> data; // Mapa kolumna -> lista wartości
+    std::map<std::string, std::vector<std::string>> data;
+    int getConditionColumnIndex(const std::string& conditionColumn); // Mapa kolumna -> lista wartości
 };
 
 class Database {

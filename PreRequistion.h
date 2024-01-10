@@ -5,5 +5,8 @@
 #include <map>
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <algorithm>
+#include <unordered_map>
 
 #endif //DATABASE_PREREQUISTION_H
