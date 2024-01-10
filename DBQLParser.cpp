@@ -30,6 +30,13 @@ void DBQLParser::parse(const std::string &query) {
             isWhere = true;
             isSelecting = isFrom = false;
             currentCondition = Condition();
+        } else if (token == "AND" || token == "OR") {
+            if (expectLogicalOperator) {
+                currentCondition.logicalOperator = token;
+            } else {
+                std::cerr << "Unexpected logical operator " << token << "." << std::endl;
+                return;
+            }
         } else {
             if (isSelecting) {
                 if (token.back() == ',') {
@@ -39,18 +46,41 @@ void DBQLParser::parse(const std::string &query) {
             } else if (isFrom) {
                 tableName = token;
             } else if (isWhere) {
-                if (token == "AND" || token == "OR") {
-                    if (!currentCondition.column.empty()) {
-                        conditions.push_back(currentCondition);
-                        currentCondition = Condition();
-                    }
-                } else if (currentCondition.column.empty()) {
+                if (currentCondition.column.empty()) {
                     currentCondition.column = token;
                 } else if (currentCondition.op.empty()) {
                     currentCondition.op = token;
                 } else {
                     currentCondition.value = token;
+                    conditions.push_back(currentCondition);
+                    currentCondition = Condition();
+                    expectLogicalOperator = true;
                 }
+            }
+        }
+    }
+}
+void DBQLParser::parseConditions(const std::string& condition, std::vector<Condition>& conditions) {
+    std::istringstream iss(condition);
+    std::string token;
+    Condition currentCondition;
+
+    while (iss >> token) {
+        if (token == "AND" || token == "OR") {
+            if (!currentCondition.column.empty()) {
+                conditions.push_back(currentCondition);
+                currentCondition = Condition();
+            }
+            currentCondition.logicalOperator = token;
+        } else {
+            if (currentCondition.column.empty()) {
+                currentCondition.column = token;
+            } else if (currentCondition.op.empty()) {
+                currentCondition.op = token;
+            } else {
+                currentCondition.value = token;
+                conditions.push_back(currentCondition);
+                currentCondition = Condition();
             }
         }
     }

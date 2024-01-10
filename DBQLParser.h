@@ -5,6 +5,7 @@ struct Condition {
     std::string column;
     std::string op;
     std::string value;
+    std::basic_string<char> logicalOperator;
 };
 
 struct Query {
@@ -27,13 +28,17 @@ public:
 
     std::string getCondition() const;
 
+    static void parseConditions(const std::string& condition, std::vector<Condition>& conditions);
+    void parse(const std::string &query);
+
 private:
     std::string tableName;
     std::vector<std::string> columns;
     std::vector<Condition> conditions;
 
 
-    void parse(const std::string &query);
+
+
 
 };
 

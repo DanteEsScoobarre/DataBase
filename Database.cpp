@@ -2,6 +2,7 @@
 #include "DBQLParser.h"
 
 
+
 Database::Database() {
 
 }
@@ -34,9 +35,19 @@ void Database::addColumn(const std::string &tableName, const Column &column) {
         std::cerr << "Column " << column.name << " already exists in table " << tableName << "." << std::endl;
         return;
     }
-    table->second.columns[column.name] = column;
 
+    if (!table->second.isValidColumnType(column)) {
+        std::cerr << "Invalid type for column " << column.name << " in table " << tableName << "." << std::endl;
+        return;
+    }
+
+    // Utwórz nowy obiekt Column używając konstruktora
+    Column newColumn(column.name, column.type, static_cast<int>(table->second.columns.size()));
+    table->second.columns.emplace(newColumn.name, newColumn);
 }
+
+
+
 
 void Database::removeColumn(const std::string &tableName, const std::string &columnName) {
     auto table = tables.find(tableName);
@@ -113,19 +124,27 @@ void Database::deleteData(const std::string& tableName, const std::string& condi
         return;
     }
 
-    int conditionColumnIndex = tableIt->second.columns[conditionColumn].index;
+    auto conditionColumnIt = tableIt->second.columns.find(conditionColumn);
+    if (conditionColumnIt == tableIt->second.columns.end()) {
+        std::cerr << "Column " << conditionColumn << " does not exist in table " << tableName << "." << std::endl;
+        return;
+    }
 
-    for (auto it = tableIt->second.data.begin(); it != tableIt->second.data.end(); ) {
-        if (it->second[conditionColumnIndex] == conditionValue) {
-            it = tableIt->second.data.erase(it);
-        } else {
-            ++it;
+    int conditionColumnIndex = conditionColumnIt->second.index;
+
+    auto& data = tableIt->second.data;
+    std::map<std::string, std::vector<std::string>> newData;
+    for (const auto& row : data) {
+        if (row.second[conditionColumnIndex] != conditionValue) {
+            newData.insert(row);
         }
     }
+    data = std::move(newData);
 }
 
-void Database::selectData(const std::string &tableName, const std::vector<std::string> &columns,
-                          const std::string &condition) {
+
+void Database::selectData(const std::string& tableName, const std::vector<std::string>& columns,
+                          const std::string& condition) {
     auto tableIt = tables.find(tableName);
     if (tableIt == tables.end()) {
         std::cerr << "Table " << tableName << " does not exist." << std::endl;
@@ -133,22 +152,33 @@ void Database::selectData(const std::string &tableName, const std::vector<std::s
     }
 
     // Parsowanie warunku (na razie bardzo proste)
-    std::string conditionColumn;
-    std::string conditionValue;
-    if (!condition.empty()) {
-        size_t equalPos = condition.find('=');
-        if (equalPos != std::string::npos) {
-            conditionColumn = condition.substr(0, equalPos);
-            conditionValue = condition.substr(equalPos + 1);
-        }
-    }
+    std::vector<Condition> conditions;
+    DBQLParser::parseConditions(condition, conditions);
 
     // Wyświetlanie danych
-    for (const auto& row : tableIt->second.data[conditionColumn]) {
-        bool match = condition.empty() || (row == conditionValue);
-        if (match) {
-            for (const auto& col : columns) {
-                std::cout << row << " ";
+    for (const auto& row : tableIt->second.data) {
+        bool meetConditions = true;
+
+        // Sprawdzanie, czy wiersz spełnia warunki
+        for (const auto& cond : conditions) {
+            size_t columnIndex = std::find(columns.begin(), columns.end(), cond.column) - columns.begin();
+
+            if (columnIndex < columns.size()) {
+                if (cond.op == "==" && row.second.at(columnIndex) != cond.value) { // Fix: Access the element using the at() function
+                    meetConditions = false;
+                    break;
+                }
+                // Dodaj obsługę innych operatorów porównania, np. "<", ">", itp., jeśli jest to wymagane
+            } else {
+                std::cerr << "Column " << cond.column << " not found in specified columns." << std::endl;
+                meetConditions = false;
+                break;
+            }
+        }
+
+        if (meetConditions) {
+            for (size_t columnIndex = 0; columnIndex < columns.size(); ++columnIndex) {
+                std::cout << row.second.at(columnIndex) << " "; // Fix: Access the element using the at() function
             }
             std::cout << std::endl;
         }
@@ -186,7 +216,7 @@ void Database::saveToFile(const std::string &fileName) {
     outputFile.close();
 }
 
-void Database::loadDataFromFile(const std::string &fileName) {
+/*void Database::loadDataFromFile(const std::string &fileName) {
     std::ifstream inputFile(fileName);
     if (!inputFile) {
         std::cerr << "Failed to open file: " << fileName << std::endl;
@@ -232,6 +262,7 @@ void Database::loadDataFromFile(const std::string &fileName) {
 
     inputFile.close();
 }
+ */
 bool Column::isValidType(const std::string &value) const {
     switch (type) {
         case DataType::INT: {
@@ -262,6 +293,16 @@ int Table::getConditionColumnIndex(const std::string &conditionColumn){
     }
 }
 
+bool Table::isValidColumnType(const Column &column) {
+    for (const auto& existingColumn : columns) {
+        if (existingColumn.second.type != column.type) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 void Database::executeQuery(const std::string& query){
     DBQLParser dbqlParser(query);
 
@@ -274,3 +315,29 @@ void Database::executeQuery(const std::string& query){
     // Wykonanie zapytania
     selectData(tableName, columns, condition);
 }
+
+void Database::addNewColumn(const std::string& tableName, const std::string& columnName, DataType columnType) {
+    auto tableIt = tables.find(tableName);
+    if (tableIt == tables.end()) {
+        std::cerr << "Table " << tableName << " does not exist." << std::endl;
+        return;
+    }
+
+    // Sprawdzenie, czy kolumna o podanej nazwie już istnieje
+    if (tableIt->second.columns.find(columnName) != tableIt->second.columns.end()) {
+        std::cerr << "Column " << columnName << " already exists in table " << tableName << "." << std::endl;
+        return;
+    }
+
+    // Dodanie nowej kolumny do istniejącej tabeli
+    int columnIndex = static_cast<int>(tableIt->second.columns.size());
+    tableIt->second.columns[columnName] = Column{columnName, columnType, columnIndex};
+
+
+    // Zainicjowanie pustych wartości dla nowej kolumny we wszystkich wierszach
+    for (auto& row : tableIt->second.data) {
+        row.second.push_back("");
+    }
+}
+
+
