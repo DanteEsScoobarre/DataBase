@@ -6,6 +6,7 @@ struct Condition {
     std::string op;
     std::string value;
     std::basic_string<char> logicalOperator;
+
 };
 
 struct Query {

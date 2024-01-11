@@ -1,15 +1,18 @@
 #include "DBQLParser.h"
 
 std::string DBQLParser::getTableName() const {
-    return std::string();
+    return tableName;
 }
 
 std::vector<std::string> DBQLParser::getColumns() const {
-    return std::vector<std::string>();
+    return columns;
 }
 
 std::string DBQLParser::getCondition() const {
-    return std::string();
+    if (!conditions.empty()) {
+        return conditions[0].column + conditions[0].op + conditions[0].value;
+    }
+    return "";
 }
 
 void DBQLParser::parse(const std::string &query) {
