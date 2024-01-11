@@ -12,31 +12,27 @@ DataType getTypeFromString(const std::string &typeString);
 
 
 // Struktura reprezentująca kolumnę
-struct Column {
-    std::string name;
-    DataType type;
-    Column() : index(-1){}
-
-    Column(const std::string &columnName, DataType columnType, int columnIndex)
-            : name(columnName), type(columnType), index(columnIndex) {}
-
-    bool isValidType(const std::string &value) const;
-
-    int index;
-
-
-};
-
-// Struktura reprezentująca tabelę
 struct Table {
+    struct Column {
+        std::string name;
+        DataType type;
+        int index;
+
+
+        Column(const std::string &columnName, DataType columnType, int columnIndex)
+                : name(columnName), type(columnType), index(columnIndex) {}
+
+        bool isValidType(const std::string &value) const;
+    };
+
     std::string name;
-    std::map<std::string, std::vector<std::string>> data;
-    std::map<std::string, Column> columns;
+    std::vector<std::vector<std::string>> data; // Change from std::map to std::vector
+    std::vector<Column> columns;
 
-
-    int getConditionColumnIndex(const std::string &conditionColumn); // Mapa kolumna -> lista wartości
+    int getConditionColumnIndex(const std::string &conditionColumn);
     bool isValidColumnType(const Column &column);
 };
+
 
 class Database {
 public:
@@ -48,7 +44,7 @@ public:
 
     void dropTable(const std::string &tableName);
 
-    void addColumn(const std::string &tableName, const Column &column);
+    void addColumn(const std::string &tableName, const Table::Column &column);
 
     void addNewColumn(const std::string& tableName, const std::string& columnName, DataType columnType);
 
@@ -60,6 +56,7 @@ public:
     void updateData(const std::string &tableName, const std::map<std::string, std::string> &updateValues,
                     const std::string &conditionColumn, const std::string &conditionValue);
 
+    bool tableExists(const std::string& tableName) const;
     void
     deleteData(const std::string &tableName, const std::string &conditionColumn, const std::string &conditionValue);
 
@@ -71,15 +68,15 @@ public:
 
 
     // Zapis/Odczyt
-    //void saveToFile(const std::string &fileName);
+    void saveToFile(const std::string &fileName);
 
     // void loadDataFromFile(const std::string &fileName);
 
     void executeQuery(const std::string &query);
 
 
-private:
-    std::map<std::string, Table> tables; // Mapa nazwa tabeli -> tabela
+    std::map<std::string, Table> tables;
+    // Mapa nazwa tabeli -> tabela
 };
 
 

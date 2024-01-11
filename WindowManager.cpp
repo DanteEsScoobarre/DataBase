@@ -3,7 +3,7 @@
 
 
 WindowManager::WindowManager() : window(sf::VideoMode(1200, 400), "Database") {
-    if (!font.loadFromFile("..\\Font\\Montserrat-Italic-VariableFont_wght.ttf")) {
+    if (!font.loadFromFile("..\\Font\\Montserrat-VariableFont_wght.ttf")) {
         std::cerr << "Failed to load font." << std::endl;
     }
     cursorRect.setSize(sf::Vector2f(0.8f, 20.f));
@@ -31,6 +31,7 @@ WindowManager::WindowManager() : window(sf::VideoMode(1200, 400), "Database") {
 
 void WindowManager::handleEvents(Database& myDatabase) {
     sf::Event event;
+    float cursorPositionX = inputText.findCharacterPos(inputText.getString().getSize()).x;
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             window.close();
@@ -46,7 +47,7 @@ void WindowManager::handleEvents(Database& myDatabase) {
                 } else {
                     try {
                         if (currentOperation.empty()) {
-                            // Jeśli brak bieżącej operacji, to traktujemy wejście użytkownika jako zapytanie
+                            cursorRect.setPosition(cursorPositionX, 32);
                             std::streambuf *coutbuf = std::cout.rdbuf();
                             std::cout.rdbuf(oss.rdbuf());
 
@@ -78,6 +79,8 @@ void WindowManager::handleEvents(Database& myDatabase) {
                 if (!currentText.empty()) {
                     currentText.pop_back();
                     inputText.setString(currentText);
+
+                    cursorRect.setPosition(cursorPositionX, 32);
                 }
             } else {
                 std::string currentText = inputText.getString();

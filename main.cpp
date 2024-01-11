@@ -4,9 +4,10 @@
 
 int main() {
     Database database;
-    WindowManager windowManager;
     Database();
 
+
+    WindowManager windowManager;
     while(windowManager.isWindowOpen()){
         windowManager.handleEvents(database);
         windowManager.renderWindow();

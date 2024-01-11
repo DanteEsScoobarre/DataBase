@@ -1,7 +1,3 @@
-//
-// Created by rozsh on 10/01/2024.
-//
-
 #ifndef DATABASE_WINDOWMANAGER_H
 #define DATABASE_WINDOWMANAGER_H
 #include "PreRequistion.h"
