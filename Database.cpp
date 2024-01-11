@@ -6,6 +6,12 @@ Database::Database() {
 }
 
 
+/**
+ * Creates a new table in the database with the specified table name.
+ * If a table with the same name already exists, an error message is printed and no action is taken.
+ *
+ * @param tableName The name of the table to be created.
+ */
 void Database::createTable(const std::string &tableName) {
     if (tables.find(tableName) != tables.end()) {
         std::cerr << "Table " << tableName << " already exists." << std::endl;
@@ -15,6 +21,14 @@ void Database::createTable(const std::string &tableName) {
 }
 
 
+/**
+ * @brief Drops a table from the database.
+ *
+ * This function removes the specified table from the database. If the table does not exist,
+ * an error message is printed to the standard error stream.
+ *
+ * @param tableName The name of the table to be dropped.
+ */
 void Database::dropTable(const std::string &tableName) {
     if (tables.find(tableName) == tables.end()) {
         std::cerr << "Table " << tableName << " does not exist." << std::endl;
@@ -24,6 +38,12 @@ void Database::dropTable(const std::string &tableName) {
 
 }
 
+/**
+ * Adds a column to the specified table in the database.
+ *
+ * @param tableName The name of the table.
+ * @param column The column to be added.
+ */
 void Database::addColumn(const std::string &tableName, const Table::Column &column) {
     auto table = tables.find(tableName);
     if (table == tables.end()) {
@@ -49,6 +69,12 @@ void Database::addColumn(const std::string &tableName, const Table::Column &colu
 }
 
 
+/**
+ * Removes a column from a table in the database.
+ *
+ * @param tableName The name of the table.
+ * @param columnName The name of the column to be removed.
+ */
 void Database::removeColumn(const std::string &tableName, const std::string &columnName) {
     auto tableIt = tables.find(tableName);
     if (tableIt == tables.end()) {
@@ -79,6 +105,19 @@ void Database::removeColumn(const std::string &tableName, const std::string &col
     }
 }
 
+/**
+ * @brief Updates data in a specified table based on a given condition.
+ *
+ * This function updates the values of specified columns in a table based on a given condition.
+ * It searches for the specified table in the database, checks if the condition column exists,
+ * and then iterates through each row in the table's data. If a row satisfies the condition,
+ * the function updates the specified columns with the provided values.
+ *
+ * @param tableName The name of the table to update.
+ * @param updateValues A map containing the column names and their corresponding updated values.
+ * @param conditionColumn The name of the column used as the condition for updating the data.
+ * @param conditionValue The value that the condition column must match for a row to be updated.
+ */
 
 void Database::insertData(const std::string &tableName, const std::map<std::string, std::string> &rowData) {
     auto tableIt = tables.find(tableName);
@@ -108,6 +147,21 @@ void Database::insertData(const std::string &tableName, const std::map<std::stri
 }
 
 
+
+/**
+ * @brief Updates data in a specified table based on a given condition.
+ *
+ * This function updates the values of specified columns in a table based on a given condition.
+ * It searches for the specified table in the database and checks if the condition column exists.
+ * If the table or condition column does not exist, an error message is printed and the function returns.
+ * If the condition column exists, it iterates through all the rows in the table and updates the values
+ * of the specified columns for rows that match the condition.
+ *
+ * @param tableName The name of the table to update.
+ * @param updateValues A map containing the column names and their corresponding updated values.
+ * @param conditionColumn The name of the column used as the condition for updating the data.
+ * @param conditionValue The value that the condition column must match for a row to be updated.
+ */
 void Database::updateData(const std::string &tableName, const std::map<std::string, std::string> &updateValues,
                           const std::string &conditionColumn, const std::string &conditionValue) {
     auto tableIt = tables.find(tableName);
@@ -157,6 +211,13 @@ void Database::updateData(const std::string &tableName, const std::map<std::stri
 }
 
 
+/**
+ * Deletes data from a specified table based on a condition.
+ *
+ * @param tableName The name of the table from which to delete data.
+ * @param conditionColumn The name of the column used as the condition for deletion.
+ * @param conditionValue The value that must be matched in the condition column for a row to be deleted.
+ */
 void Database::deleteData(const std::string &tableName, const std::string &conditionColumn,
                           const std::string &conditionValue) {
     auto tableIt = tables.find(tableName);
@@ -192,6 +253,13 @@ void Database::deleteData(const std::string &tableName, const std::string &condi
 }
 
 
+/**
+ * Selects data from a specified table based on the given conditions and displays the selected columns.
+ *
+ * @param tableName The name of the table to select data from.
+ * @param columns The vector of column names to be displayed.
+ * @param condition The condition to filter the rows.
+ */
 void Database::selectData(const std::string &tableName, const std::vector<std::string> &columns,
                           const std::string &condition) {
     auto tableIt = tables.find(tableName);
@@ -242,6 +310,11 @@ void Database::selectData(const std::string &tableName, const std::vector<std::s
 }
 
 
+/**
+ * Saves the contents of the database to a file.
+ *
+ * @param fileName The name of the file to save the database to.
+ */
 void Database::saveToFile(const std::string &fileName) {
     std::ofstream outputFile(fileName);
     if (!outputFile) {
@@ -275,6 +348,11 @@ void Database::saveToFile(const std::string &fileName) {
     outputFile.close();
 }
 
+/**
+ * Loads data from a file into the database.
+ *
+ * @param fileName The name of the file to load data from.
+ */
 
 /*void Database::loadDataFromFile(const std::string &fileName) {
     std::ifstream inputFile(fileName);
@@ -331,6 +409,12 @@ void Database::saveToFile(const std::string &fileName) {
 }
 */
 
+/**
+ * @brief Checks if a given value is a valid type for the column.
+ *
+ * @param value The value to be checked.
+ * @return true if the value is a valid type, false otherwise.
+ */
 bool Table::Column::isValidType(const std::string &value) const {
     switch (type) {
         case DataType::INT: {
@@ -350,6 +434,12 @@ bool Table::Column::isValidType(const std::string &value) const {
     }
 }
 
+/**
+ * Returns the index of the column with the specified condition column name.
+ *
+ * @param conditionColumn The name of the condition column.
+ * @return The index of the condition column, or -1 if it does not exist.
+ */
 int Table::getConditionColumnIndex(const std::string &conditionColumn) {
     for (size_t i = 0; i < columns.size(); ++i) {
         if (columns[i].name == conditionColumn) {
@@ -362,10 +452,22 @@ int Table::getConditionColumnIndex(const std::string &conditionColumn) {
 }
 
 
+/**
+ * Checks if a table exists in the database.
+ *
+ * @param tableName The name of the table to check.
+ * @return True if the table exists, false otherwise.
+ */
 bool Database::tableExists(const std::string &tableName) const {
     return tables.find(tableName) != tables.end();
 }
 
+/**
+ * Checks if the given column type is valid for the table.
+ *
+ * @param column The column to check.
+ * @return True if the column type is valid, false otherwise.
+ */
 bool Table::isValidColumnType(const Column &column) {
     for (const auto &existingColumn: columns) {
         if (existingColumn.type != column.type) {
@@ -376,6 +478,11 @@ bool Table::isValidColumnType(const Column &column) {
 }
 
 
+/**
+ * Executes a database query.
+ *
+ * @param query The query to be executed.
+ */
 void Database::executeQuery(const std::string &query) {
     DBQLParser dbqlParser(query);
 
@@ -389,6 +496,18 @@ void Database::executeQuery(const std::string &query) {
     selectData(tableName, columns, condition);
 }
 
+/**
+ * @brief Adds a new column to the specified table in the database.
+ *
+ * This function checks if the table exists and if the column with the given name already exists in the table.
+ * If the table or column already exists, an error message is printed and the function returns.
+ * Otherwise, a new column is added to the table with the specified name and data type.
+ * Empty values are initialized for the new column in all rows of the table.
+ *
+ * @param tableName The name of the table to add the column to.
+ * @param columnName The name of the new column.
+ * @param columnType The data type of the new column.
+ */
 void Database::addNewColumn(const std::string &tableName, const std::string &columnName, DataType columnType) {
     auto tableIt = tables.find(tableName);
     if (tableIt == tables.end()) {

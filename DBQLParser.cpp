@@ -1,13 +1,31 @@
 #include "DBQLParser.h"
 
+/**
+ * @brief Get the table name.
+ *
+ * @return std::string The table name.
+ */
 std::string DBQLParser::getTableName() const {
     return tableName;
 }
 
+/**
+ * @brief Returns the vector of strings representing the columns.
+ *
+ * @return std::vector<std::string> The vector of strings representing the columns.
+ */
 std::vector<std::string> DBQLParser::getColumns() const {
     return columns;
 }
 
+/**
+ * @brief Returns the condition as a string.
+ *
+ * If the conditions vector is not empty, this function returns the first condition's column, operator, and value concatenated as a string.
+ * If the conditions vector is empty, an empty string is returned.
+ *
+ * @return std::string The condition as a string.
+ */
 std::string DBQLParser::getCondition() const {
     if (!conditions.empty()) {
         return conditions[0].column + conditions[0].op + conditions[0].value;
@@ -15,6 +33,11 @@ std::string DBQLParser::getCondition() const {
     return "";
 }
 
+/**
+ * @brief Parses a SQL query and extracts the SELECT columns, table name, and WHERE conditions.
+ *
+ * @param query The SQL query to parse.
+ */
 void DBQLParser::parse(const std::string &query) {
     std::istringstream iss(query);
     std::string token;
@@ -63,6 +86,17 @@ void DBQLParser::parse(const std::string &query) {
         }
     }
 }
+/**
+ * @brief Parses the given condition string and populates the vector of conditions.
+ *
+ * This function parses the condition string and extracts individual conditions, which are then
+ * stored in the provided vector. Each condition consists of a column, operator, and value.
+ * The condition string should be in the format "column operator value", where the operator can be
+ * either "AND" or "OR". Multiple conditions can be separated by spaces.
+ *
+ * @param condition The condition string to parse.
+ * @param conditions The vector to store the parsed conditions.
+ */
 void DBQLParser::parseConditions(const std::string& condition, std::vector<Condition>& conditions) {
     std::istringstream iss(condition);
     std::string token;

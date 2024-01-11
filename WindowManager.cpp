@@ -2,6 +2,12 @@
 #include "PreRequistion.h"
 
 
+/**
+ * @brief Constructs a WindowManager object.
+ *
+ * This constructor initializes the window with a size of 1200x400 and a title of "Database".
+ * It also loads a font file, sets up the cursor rectangle, and initializes the text objects for welcome, input, output, and error messages.
+ */
 WindowManager::WindowManager() : window(sf::VideoMode(1200, 400), "Database") {
     if (!font.loadFromFile("..\\Font\\Montserrat-VariableFont_wght.ttf")) {
         std::cerr << "Failed to load font." << std::endl;
@@ -29,6 +35,11 @@ WindowManager::WindowManager() : window(sf::VideoMode(1200, 400), "Database") {
     errorText.setFillColor(sf::Color::Red);
 }
 
+/**
+ * @brief Handles events from the window and performs corresponding actions.
+ *
+ * @param myDatabase The database object to perform queries on.
+ */
 void WindowManager::handleEvents(Database& myDatabase) {
     sf::Event event;
     float cursorPositionX = inputText.findCharacterPos(inputText.getString().getSize()).x;
@@ -105,6 +116,9 @@ void WindowManager::handleEvents(Database& myDatabase) {
     }
 }
 
+/**
+ * Renders the window by clearing it, drawing various elements, and displaying it.
+ */
 void WindowManager::renderWindow() {
     window.clear();
     window.draw(welcomeText);
@@ -115,10 +129,20 @@ void WindowManager::renderWindow() {
     window.display();
 }
 
+/**
+ * @brief Checks if the window is open.
+ *
+ * @return true if the window is open, false otherwise.
+ */
 bool WindowManager::isWindowOpen() const {
     return window.isOpen();
 }
 
+/**
+ * Displays an error message on the window.
+ *
+ * @param errorMessage The error message to be displayed.
+ */
 void WindowManager::showError(const std::string &errorMessage) {
     errorText.setString(errorMessage);
 }
