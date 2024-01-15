@@ -2,10 +2,11 @@
 #define DATABASE_DATABASE_H
 
 #include "PreRequistion.h"
+#include "DBQLParser.h"
 
 // Definicje typów danych
 enum class DataType {
-    INT, FLOAT, STRING
+    INT, FLOAT, STRING, BOOL
 };
 
 DataType getTypeFromString(const std::string &typeString);
@@ -40,43 +41,42 @@ public:
 
 
     // Metody DDL
-    void createTable(const std::string &tableName);
+    auto createTable(const TableDefinition& tableDef) -> void;
 
     void dropTable(const std::string &tableName);
 
-    void addColumn(const std::string &tableName, const Table::Column &column);
+    auto addColumn(const std::string &tableName, const ColumnDefinition &colDef) -> void ;
 
     void addNewColumn(const std::string& tableName, const std::string& columnName, DataType columnType);
 
-    void removeColumn(const std::string &tableName, const std::string &columnName);
+    auto removeColumn(const std::string &tableName, const std::string &columnName) -> void;
 
     // Metody DML
-    void insertData(const std::string &tableName, const std::map<std::string, std::string> &rowData);
+    auto insertData(const std::string &tableName, const std::map<std::string, std::string> &rowData) -> bool;
 
-    void updateData(const std::string &tableName, const std::map<std::string, std::string> &updateValues,
-                    const std::string &conditionColumn, const std::string &conditionValue);
+    auto updateData(const std::string &tableName, const std::vector<std::pair<std::string, std::string>> &updateValues,
+                              const std::string &conditionColumn, const std::string &conditionValue) -> bool;
 
-    bool tableExists(const std::string& tableName) const;
-    void
-    deleteData(const std::string &tableName, const std::string &conditionColumn, const std::string &conditionValue);
+    auto tableExists(const std::string& tableName) const -> bool;
+    void deleteData(const std::string &tableName, const std::string &conditionColumn, const std::string &conditionValue);
 
     // Metody DQL
-    void
-    selectData(const std::string &tableName, const std::vector<std::string> &columns, const std::string &condition);
+    auto selectData(const std::string &tableName, const std::vector<std::string> &columns, const std::string &condition) -> void ;
 
 
 
 
     // Zapis/Odczyt
-    void saveToFile(const std::string &fileName);
+    auto saveToFile(const std::string &fileName) -> void;
 
-    //void loadDataFromFile(const std::string &fileName);
+    auto loadDataFromFile(const std::string &fileName) -> void;
 
-    void executeQuery(const std::string &query);
+    auto executeQuery(const std::string &query) -> void;
 
 
     std::map<std::string, Table> tables;
     // Mapa nazwa tabeli -> tabela
+
 };
 
 

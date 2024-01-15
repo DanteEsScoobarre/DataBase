@@ -23,12 +23,20 @@ struct Query {
     std::vector<Condition> havingConditions;
 };
 
+struct ColumnDefinition {
+    std::string name;
+    std::string dataType;
+};
+
+struct TableDefinition {
+    std::string tableName;
+    std::vector<ColumnDefinition> columns;
+};
+
+
 class DBQLParser {
 public:
-    DBQLParser(const std::string &query) {
-        parse(query);
-    }
-
+    DBQLParser() = default;
     // Metody dostępu do elementów zapytania
     auto getTableName() const -> std::string;
 
@@ -44,11 +52,12 @@ public:
 
     auto parseGroupBy(std::istringstream &iss, Query &query) -> void;
 
-    void parse(const std::string &query);
 
     auto parseConditions(std::istringstream &iss, Query &query) -> void;
 
     auto isValidOperator(const std::string &op) -> bool;
+    auto parseCreateTableCommand(const std::string &command) -> TableDefinition;
+    void executeCreateTable(const std::string &command, Database &database);
 
 private:
     std::string tableName;

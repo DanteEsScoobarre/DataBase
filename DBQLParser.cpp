@@ -16,7 +16,7 @@ auto DBQLParser::getCondition() const -> std::string {
     return "";
 }
 
-auto DBQLParser::parseSelectCommand(const std::string &command, Database& db) -> void {
+auto DBQLParser::parseSelectCommand(const std::string &command, Database &db) -> void {
     std::istringstream iss(command);
     std::string token;
     Query query;
@@ -30,18 +30,21 @@ auto DBQLParser::parseSelectCommand(const std::string &command, Database& db) ->
             parseConditions(iss, query);
         } else if (token == "having") {
             parseHaving(iss, query);
-        }
-        else if (token == "group by"){
-            parseGroupBy(iss, query);
-        }
-    }
+        } else if (token == "group" && iss.peek() == ' ') {
+            std::string nextToken;
+            iss >> nextToken;
+            if (nextToken == "by") {
+                parseGroupBy(iss, query);
+            }
 
-    std::string conditionStr;
-    for (const auto& cond : query.conditions) {
-        if (!conditionStr.empty()) conditionStr += " AND ";
-        conditionStr += cond.column + cond.op + cond.value;
+            std::string conditionStr;
+            for (const auto &cond: query.conditions) {
+                if (!conditionStr.empty()) conditionStr += " AND ";
+                conditionStr += cond.column + cond.op + cond.value;
+            }
+            db.selectData(query.tableName, query.columns, conditionStr);
+        }
     }
-    db.selectData(query.tableName, query.columns, conditionStr);
 }
 
 
@@ -60,7 +63,7 @@ auto DBQLParser::parseConditions(std::istringstream &iss, Query &query) -> void 
     while (iss >> column >> op >> value) {
         if (!isValidOperator(op)) {
             std::cerr << "Invalid operator: " << op << std::endl;
-            continue; // Skip this condition and proceed to the next
+            continue;
         }
         query.conditions.push_back(Condition(column, op, value));
         if (iss.peek() == ',' || iss.peek() == 'and') {
@@ -98,5 +101,39 @@ auto DBQLParser::parseGroupBy(std::istringstream &iss, Query &query) -> void {
     while (iss >> column) {
         query.groupByColumns.push_back(column);
         if (iss.peek() == ',') iss.ignore();
+    }
+}
+
+auto DBQLParser::parseCreateTableCommand(const std::string &command) -> TableDefinition {
+    std::istringstream iss(command);
+    std::string token, tableName;
+    TableDefinition tableDef;
+
+    iss >> token; // This should be "create"
+    if (token != "create") {
+        throw std::runtime_error("Expected 'create' command");
+    }
+
+    iss >> tableName; // Extract table name
+    tableDef.tableName = tableName;
+
+    // Parse column definitions
+    std::string columnName, dataType;
+    while (iss >> columnName >> dataType) {
+        tableDef.columns.push_back({columnName, dataType});
+        if (iss.peek() == ',') {
+            iss.ignore();
+        }
+    }
+
+    return tableDef;
+}
+
+auto DBQLParser::executeCreateTable(const std::string& command, Database& database) -> void{
+    try {
+        TableDefinition tableDef = parseCreateTableCommand(command);
+        database.createTable(tableDef.tableName, tableDef.columns);
+    } catch (const std::exception& e) {
+        std::cerr << "Error creating table: " << e.what() << std::endl;
     }
 }
