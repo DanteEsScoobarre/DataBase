@@ -348,11 +348,6 @@ void Database::saveToFile(const std::string &fileName) {
     outputFile.close();
 }
 
-/**
- * Loads data from a file into the database.
- *
- * @param fileName The name of the file to load data from.
- */
 
 /*void Database::loadDataFromFile(const std::string &fileName) {
     std::ifstream inputFile(fileName);
