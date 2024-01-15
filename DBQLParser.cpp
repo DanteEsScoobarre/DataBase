@@ -1,6 +1,7 @@
 #include "DBQLParser.h"
 
 
+
 auto DBQLParser::getTableName() const -> std::string {
     return tableName;
 }

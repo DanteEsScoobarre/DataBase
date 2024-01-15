@@ -1,6 +1,7 @@
 #ifndef DATABASE_DBQLPARSER_H
 #define DATABASE_DBQLPARSER_H
 
+
 #include "PreRequistion.h"
 #include "Database.h"
 
@@ -57,7 +58,7 @@ public:
 
     auto isValidOperator(const std::string &op) -> bool;
     auto parseCreateTableCommand(const std::string &command) -> TableDefinition;
-    void executeCreateTable(const std::string &command, Database &database);
+    auto executeCreateTable(const std::string &command, Database &database) -> void;
 
 private:
     std::string tableName;

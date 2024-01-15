@@ -3,6 +3,7 @@
 
 
 Database::Database() {
+
 }
 
 
@@ -54,7 +55,7 @@ auto Database::createTable(const TableDefinition &tableDef) -> void {
 
 
 
-void Database::dropTable(const std::string &tableName) {
+auto Database::dropTable(const std::string &tableName) -> void {
     if (tables.find(tableName) == tables.end()) {
         std::cerr << "Table " << tableName << " does not exist." << std::endl;
         return;
